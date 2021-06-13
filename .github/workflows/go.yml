@@ -23,7 +23,6 @@ jobs:
           CGO_ENABLED=0 GOOS=darwin go build -o gin_darwin -trimpath -ldflags="-s -w"  && upx gin_darwin
       - name: pack
         run : |
-          ls -al ./artifact/
           rm -rf ./artifact/
           mkdir -p ./artifact
           mv gin_* ./artifact/
