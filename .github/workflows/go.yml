@@ -19,7 +19,28 @@ jobs:
         go-version: 1.15
 
     - name: Build
-      run: go build -v ./...
+      run: |
+        sudo -E apt-get update
+        sudo install upx
+        CGO_ENABLED=0 GOOS=linux go build -o gin_linux -trimpath -ldflags="-s -w"  && upx jfork_linux
+        CGO_ENABLED=0 GOOS=darwin go build -o gin_darwin -trimpath -ldflags="-s -w"  && upx jfork_darwin
+    - name: pack
+      run : |
+        ls -al ./artifact/
+        rm -rf ./artifact/
+        mkdir -p ./artifact
+        mv gin_* ./artifact/
+    - name: upload
+      uses: actions/upload-artifact@v2
+      with:
+        name: gin_demo
+        path: ./artifact/
+    - name: release
+      use: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        automatic_release_tag: true
+        title: "Auto Build"
+        files: ./artifact/*
 
-    - name: Test
-      run: go test -v ./...
